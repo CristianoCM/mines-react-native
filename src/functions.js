@@ -112,10 +112,17 @@ const showMines = board =>
         .filter(field => field.mined)
         .forEach(field => field.opened = true)
 
-
+// Set if block is flagged or not (setting the inverted actual value as result)
 const invertFlag = (board, row, column) => {
     const field = board[row][column];
+    field.flagged = !field.flagged;
 }
+
+// Return all blocks flagged
+const flagsUsed = board => 
+    fields(board)
+    .filter(field => field.flagged)
+    .length;
 
 export { 
     createMinedBoard,
@@ -123,5 +130,7 @@ export {
     openField,
     hadExplosion,
     wonGame,
-    showMines
+    showMines,
+    invertFlag,
+    flagsUsed,
 }

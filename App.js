@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import params from './src/params';
-import Field from './src/components/Field';
 import MineField from './src/components/MineField';
+import Header from './src/components/Header';
+import LevelSelection from './src/screens/LevelSelection';
 import { 
   createMinedBoard,
   cloneBoard,
   openField,
   hadExplosion,
   wonGame,
-  showMines
+  showMines,
+  invertFlag,
+  flagsUsed,
 } from './src/functions';
 
 export default class App extends Component {
@@ -32,6 +35,7 @@ export default class App extends Component {
       board: createMinedBoard(rows, cols, this.minesAmount()),
       won: false,
       lost: false,
+      showLevelSelection: false,
     }
   }
 
@@ -52,16 +56,44 @@ export default class App extends Component {
 
     this.setState({ board, lost, won });
   }
+
+  onSelectField = (row, column) => {
+    const board = cloneBoard(this.state.board);
+    invertFlag(board, row, column);
+    const won = wonGame(board);
+
+    if (won) {
+      Alert.alert('You win!!!');
+    }
+
+    this.setState({ board, won });
+  }
+
+  onLevelSelected = level => {
+    params.difficultLevel = level;
+    this.setState(this.createState());
+  }
   
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Mines</Text>
-        <Text style={styles.gridSizeTxt}>Grid Size: {params.getRowsAmount()}x{params.getColumnsAmount()}</Text>
+        <LevelSelection 
+          isVisible={this.state.showLevelSelection}
+          onLevelSelected={this.onLevelSelected}
+          onCancel={() => this.setState({ showLevelSelection: false })}
+        ></LevelSelection>
+
+        <Header 
+          flagsLeft={this.minesAmount() - flagsUsed(this.state.board)}
+          onNewGame={() => this.setState(this.createState())}
+          onFlagPressed={() => this.setState({ showLevelSelection: true })}
+        ></Header>
 
         <View style={styles.board}>
           <MineField board={this.state.board}
-            onOpenField={this.onOpenField}></MineField>
+            onOpenField={this.onOpenField}
+            onSelectField={this.onSelectField}  
+          ></MineField>
         </View>
       </View>
     );
@@ -77,13 +109,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#AAA',
   },
-  title: {
-    fontSize: 32,
-    textAlign: 'center',
-  },
-  gridSizeTxt: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 12
-  }
 });

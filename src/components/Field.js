@@ -36,7 +36,10 @@ export default props => {
     }
 
     return (
-        <TouchableWithoutFeedback onPress={props.onOpen}>
+        <TouchableWithoutFeedback 
+            onPress={props.onOpen}
+            onLongPress={props.onSelect}
+        >
             <View style={styleField}>
                 {/* If block was opened (touched) and isn't mined and near mines are more than zero: render near mines */}
                 {/* Else return false, nothing to render */}
